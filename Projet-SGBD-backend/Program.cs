@@ -46,7 +46,7 @@ namespace Projet_SGBD_backend
             database.load();
             //database.rechercher("t1").print();
 
-            database.executeQuery("select t1f1 from t1");
+            database.executeQuery("select t1f1,t1f2 from t1 where t1f1=='t1f1e11'");
             Console.WriteLine("------------------------------------------------------------------------------------------------------");
             database.executeQuery("select * from t2");
 

@@ -52,10 +52,11 @@ namespace Projet_SGBD_backend.services
             rows.Remove(row);
             return true;
         }
-        public void print(params string[] values)
+        public void print(List<string> values,Dictionary<string,string> conditions)
         {
             List<string> fields=new List<string>();
             List<int> cols=new List<int>();
+            Dictionary<int,string> colsCondit = new Dictionary<int, string>();
             int i = 0;
             foreach (Field field in structTable.Fields)
             {
@@ -63,6 +64,10 @@ namespace Projet_SGBD_backend.services
                 {
                     fields.Add(field.Name);
                     cols.Add(i);
+                }
+                if (conditions.Keys.Contains(field.Name))
+                {
+                    colsCondit.Add(i,field.Name);
                 }
                 i++;
             }
@@ -74,11 +79,19 @@ namespace Projet_SGBD_backend.services
             Console.WriteLine();
             foreach (Row row in rows)
             {
-                foreach(int col in cols)
+                bool res = true;
+                foreach(KeyValuePair<int,string> col in colsCondit)
                 {
-                    Console.Write(row.get(col)+" | ");
+                    if (row.get(col.Key) != col.Value) res = false;
                 }
-                Console.WriteLine();
+                if (res)
+                {
+                    foreach (int col in cols)
+                    {
+                        Console.Write(row.get(col) + " | ");
+                    }
+                    Console.WriteLine();
+                }
             }
         }
     }

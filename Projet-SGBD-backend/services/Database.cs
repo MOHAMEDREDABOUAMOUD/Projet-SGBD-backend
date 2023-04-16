@@ -31,71 +31,42 @@ namespace Projet_SGBD_backend.services
         {
             query = query.ToLower();
             string[] elems = query.Split(' ');
-            if (elems[0] == "select")
+            if(elems[0].ToLower() == "select" && elems[2].ToLower() == "from")
             {
-                string[] columns = elems[1].Split(',');//test if it returns one if there is juste one
-                if (columns.Length == 1)
+                string[] columns = elems[1].Split(',');
+                string table = elems[3];
+                if (elems.Length > 4)
                 {
-                    if (columns[0] == "*")
+                    if (elems[4].ToLower() == "where")
                     {
-                        if (elems[2] == "from")
+                        Dictionary<string, string> conditions2 = new Dictionary<string, string>();
+                        for (int i = 5; i < elems.Length; i++)
                         {
-                            string table = elems[3];
-                            if (elems.Length>4)
+                            if (elems[i].ToLower() != "and")
                             {
-                                if (elems[4] == "where")
+                                if (elems[i].Contains("=="))
                                 {
-
-                                }
-                                else
-                                {
-                                    return false;
+                                    conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
                                 }
                             }
-                            else
-                            {
-                                rechercher(table).print("*");
-                            }
-                            return true;
                         }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if (elems[2] == "from")
-                        {
-                            string table = elems[3];
-                            rechercher(table).print(columns[0]);
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-                else if(columns.Length>1)
-                {
-                    if (elems[2] == "from")
-                    {
-                        string table = elems[3];
-                        rechercher(table).print(columns);
-                        return true;
+                        rechercher(table).print(columns.ToList(), conditions2);
                     }
                     else
                     {
                         return false;
                     }
                 }
+                else
+                {
+                    rechercher(table).print(columns.ToList(), new Dictionary<string, string>());
+                }
+                return true;
             }
             else
             {
                 return false;
             }
-            return false;
         }
 
         public bool executeUpdate(string query)
