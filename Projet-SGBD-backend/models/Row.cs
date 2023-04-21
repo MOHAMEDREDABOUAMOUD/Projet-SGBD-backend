@@ -34,7 +34,9 @@ namespace Projet_SGBD_backend.models
         {
             elems[col]=newValue;
         }
-
-       // public List<string> Elems { get => elems; set => elems = value; }
+        public override string ToString()
+        {
+            return elems[0];
+        }
     }
 }

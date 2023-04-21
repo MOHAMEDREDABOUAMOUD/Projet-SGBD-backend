@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Projet_SGBD_backend.models;
 using Projet_SGBD_backend.services.interfaces;
 
 namespace Projet_SGBD_backend.services
@@ -73,17 +74,96 @@ namespace Projet_SGBD_backend.services
         {
             query = query.ToLower();
             string[] elems = query.Split(' ');
-            if (elems[0] == "insert")
+            if (elems[0].ToLower() == "insert")
             {
-                //
+                if (elems[0].ToLower() == "insert" && elems[1].ToLower() == "into")
+                {
+                    string table=elems[2];
+                    if (elems[3].ToLower().Contains("values"))
+                    {
+                        Console.WriteLine(elems[3].Split('(')[1].Substring(0, elems[3].Split('(')[1].Length - 1));
+                        string values = elems[3].Split('(')[1].Substring(0, elems[3].Split('(')[1].Length-1);
+                        Row row = new Row();
+                        foreach(string value in values.Split(','))
+                        {
+                            if(!value.Contains("'")) row.add(value);
+                            else
+                            {
+                                row.add(value.Substring(1,value.Length-2));
+                            }
+                        }
+                        rechercher(table).add(row);
+                    }
+                }
             }
-            else if (elems[0] == "update")
+            else if (elems[0].ToLower() == "update")
             {
-                //
+                if (elems[0].ToLower() == "update")
+                {
+                    string table = elems[1];
+                    if (elems[2].ToLower() == "set")
+                    {
+                        int i;
+                        Dictionary<string, string> newValues = new Dictionary<string, string>();
+                        Dictionary<string, string> conditions = new Dictionary<string, string>();
+                        for (i = 3; i < elems.Length; i++)
+                        {
+                            if (elems[i].ToLower() == "where") break;
+                            else
+                            {
+                                if (elems[i].Contains("=") && elems[i] != ",")
+                                {
+                                    newValues.Add(elems[i].Split('=')[0], elems[i].Split('=')[1].Substring(1, elems[i].Split("=")[1].Length - 2));
+                                }
+                            }
+                        }
+                        if (elems[i].ToLower() == "where")
+                        {
+                            for (int j = i+1; j < elems.Length; j++)
+                            {
+                                if (elems[j].Contains("==") && elems[j] != "and")
+                                {
+                                    conditions.Add(elems[j].Split("==")[0], elems[j].Split("==")[1].Substring(1, elems[j].Split("==")[1].Length - 2));
+                                }
+                            }
+                        }
+                        rechercher(table).update(newValues,conditions);
+                    }
+                }
             }
-            else if (elems[0] == "delete")
+            else if (elems[0].ToLower() == "delete")
             {
-                //
+                if (elems[0].ToLower()=="delete" && elems[1].ToLower() == "from")
+                {
+                    string table=elems[2];
+                    if (elems.Length > 3)
+                    {
+                        if (elems[3].ToLower() == "where")
+                        {
+                            Dictionary<string, string> conditions2 = new Dictionary<string, string>();
+                            for (int i = 4; i < elems.Length; i++)
+                            {
+                                if (elems[i].ToLower() != "and")
+                                {
+                                    if (elems[i].Contains("=="))
+                                    {
+                                        conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
+                                    }
+                                }
+                            }
+                            rechercher(table).clear();
+                        }
+                        else return false;
+                    }
+                    else
+                    {
+                        rechercher(table).clear();
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
