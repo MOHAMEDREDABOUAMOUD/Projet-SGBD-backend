@@ -49,16 +49,16 @@ namespace Projet_SGBD_backend
 
             //database.rechercher("t1").print();
 
-            /*database.executeQuery("select t1f1,t1f2 from t1 where t1f2==1");
+            /*database.executeQuery("select t1f1,t1f2 from t1 where t1f1=='Reda' or t1f2==1");
             Console.WriteLine("------------------------------------------------------------------------------------------------------");
             database.executeQuery("select * from t1");*/
 
             /*database.executeQuery("select * from t1");
-            database.executeUpdate("delete from t1 where t1f1=='Reda'");
+            database.executeUpdate("delete from t1 where t1f1=='Reda' or t1f2==1");
             database.executeQuery("select * from t1");*/
 
             /*database.executeQuery("select * from t1");
-            database.executeUpdate("update t1 set t1f1='redaNew' where t1f2==10");
+            database.executeUpdate("update t1 set t1f1='redaNew' where t1f1=='Reda' or t1f2==1");
             database.executeQuery("select * from t1");*/
 
             /*database.executeQuery("select * from t1");

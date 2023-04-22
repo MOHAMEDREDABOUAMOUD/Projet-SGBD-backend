@@ -30,7 +30,6 @@ namespace Projet_SGBD_backend.services
 
         public bool executeQuery(string query)
         {
-            query = query.ToLower();
             string[] elems = query.Split(' ');
             if(elems[0].ToLower() == "select" && elems[2].ToLower() == "from")
             {
@@ -42,37 +41,46 @@ namespace Projet_SGBD_backend.services
                     {
                         Dictionary<string, string> conditions2 = new Dictionary<string, string>();
                         Dictionary<string, string> conditions3 = new Dictionary<string, string>();
+                        string opp = "";
                         for (int i = 5; i < elems.Length; i++)
                         {
                             if (elems[i].ToLower() != "and")
                             {
-                                if (elems[i].Contains("=="))
+                                if (elems[i].ToLower() != "or")
                                 {
-                                    //conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
-                                    conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
-                                    conditions3.Add(elems[i].Split("==")[0], "==");
+                                    if (elems[i].Contains("=="))
+                                    {
+                                        //conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
+                                        conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
+                                        conditions3.Add(elems[i].Split("==")[0], "==");
+                                    }
+                                    else if (elems[i].Contains(">="))
+                                    {
+                                        conditions2.Add(elems[i].Split(">=")[0], elems[i].Split(">=")[1]);
+                                        conditions3.Add(elems[i].Split(">=")[0], ">=");
+                                    }
+                                    else if (elems[i].Contains("<="))
+                                    {
+                                        conditions2.Add(elems[i].Split("<=")[0], elems[i].Split("<=")[1]);
+                                        conditions3.Add(elems[i].Split("<=")[0], "<=");
+                                    }
+                                    else if (elems[i].Contains(">"))
+                                    {
+                                        conditions2.Add(elems[i].Split(">")[0], elems[i].Split(">")[1]);
+                                        conditions3.Add(elems[i].Split(">")[0], ">");
+                                    }
+                                    else if (elems[i].Contains("<"))
+                                    {
+                                        conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
+                                        conditions3.Add(elems[i].Split("<")[0], "<");
+                                    }
                                 }
-                                else if (elems[i].Contains(">="))
+                                else
                                 {
-                                    conditions2.Add(elems[i].Split(">=")[0], elems[i].Split(">=")[1]);
-                                    conditions3.Add(elems[i].Split(">=")[0], ">=");
-                                }
-                                else if (elems[i].Contains("<="))
-                                {
-                                    conditions2.Add(elems[i].Split("<=")[0], elems[i].Split("<=")[1]);
-                                    conditions3.Add(elems[i].Split("<=")[0], "<=");
-                                }
-                                else if (elems[i].Contains(">"))
-                                {
-                                    conditions2.Add(elems[i].Split(">")[0], elems[i].Split(">")[1]);
-                                    conditions3.Add(elems[i].Split(">")[0], ">");
-                                }
-                                else if (elems[i].Contains("<"))
-                                {
-                                    conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
-                                    conditions3.Add(elems[i].Split("<")[0], "<");
+                                    opp = "or";
                                 }
                             }
+                            else opp = "and";
                         }
                         /*Console.Write("conditions");
                         foreach (var condition in conditions2)
@@ -85,7 +93,7 @@ namespace Projet_SGBD_backend.services
                         {
                             Console.Write(condition.Key + " " + condition.Value + " | ");
                         }*/
-                        rechercher(table).print(columns.ToList(), conditions2,conditions3);
+                        rechercher(table).print(columns.ToList(), conditions2,conditions3, opp);
                     }
                     else
                     {
@@ -137,6 +145,7 @@ namespace Projet_SGBD_backend.services
                     if (elems[2].ToLower() == "set")
                     {
                         int i;
+                        string opp = "";
                         Dictionary<string, string> newValues = new Dictionary<string, string>();
                         Dictionary<string, string> conditions = new Dictionary<string, string>();
                         Dictionary<string, string> conditions3 = new Dictionary<string, string>();
@@ -155,37 +164,48 @@ namespace Projet_SGBD_backend.services
                         {
                             for (int j = i+1; j < elems.Length; j++)
                             {
-                                if(elems[j] != "and")
+                                if(elems[j].ToLower() != "and")
                                 {
-                                    if (elems[j].Contains("=="))
+                                    if (elems[j].ToLower() != "or")
                                     {
-                                        conditions.Add(elems[j].Split("==")[0], elems[j].Split("==")[1]);
-                                        conditions3.Add(elems[j].Split("==")[0], "==");
+                                        if (elems[j].Contains("=="))
+                                        {
+                                            conditions.Add(elems[j].Split("==")[0], elems[j].Split("==")[1]);
+                                            conditions3.Add(elems[j].Split("==")[0], "==");
+                                        }
+                                        else if (elems[j].Contains(">="))
+                                        {
+                                            conditions.Add(elems[j].Split(">=")[0], elems[j].Split(">=")[1]);
+                                            conditions3.Add(elems[j].Split(">=")[0], ">=");
+                                        }
+                                        else if (elems[j].Contains("<="))
+                                        {
+                                            conditions.Add(elems[j].Split("<=")[0], elems[j].Split("<=")[1]);
+                                            conditions3.Add(elems[j].Split("<=")[0], "<=");
+                                        }
+                                        else if (elems[j].Contains(">"))
+                                        {
+                                            conditions.Add(elems[j].Split(">")[0], elems[j].Split(">")[1]);
+                                            conditions3.Add(elems[j].Split(">")[0], ">");
+                                        }
+                                        else if (elems[j].Contains("<"))
+                                        {
+                                            conditions.Add(elems[j].Split("<")[0], elems[j].Split("<")[1]);
+                                            conditions3.Add(elems[j].Split("<")[0], "<");
+                                        }
                                     }
-                                    else if (elems[j].Contains(">="))
+                                    else
                                     {
-                                        conditions.Add(elems[j].Split(">=")[0], elems[j].Split(">=")[1]);
-                                        conditions3.Add(elems[j].Split(">=")[0], ">=");
+                                        opp = "or";
                                     }
-                                    else if (elems[j].Contains("<="))
-                                    {
-                                        conditions.Add(elems[j].Split("<=")[0], elems[j].Split("<=")[1]);
-                                        conditions3.Add(elems[j].Split("<=")[0], "<=");
-                                    }
-                                    else if (elems[j].Contains(">"))
-                                    {
-                                        conditions.Add(elems[j].Split(">")[0], elems[j].Split(">")[1]);
-                                        conditions3.Add(elems[j].Split(">")[0], ">");
-                                    }
-                                    else if (elems[j].Contains("<"))
-                                    {
-                                        conditions.Add(elems[j].Split("<")[0], elems[j].Split("<")[1]);
-                                        conditions3.Add(elems[j].Split("<")[0], "<");
-                                    }
+                                }
+                                else
+                                {
+                                    opp = "and";
                                 }
                             }
                         }
-                        rechercher(table).update(newValues,conditions,conditions3);
+                        rechercher(table).update(newValues,conditions,conditions3, opp);
                     }
                 }
             }
@@ -200,35 +220,47 @@ namespace Projet_SGBD_backend.services
                         {
                             Dictionary<string, string> conditions2 = new Dictionary<string, string>();
                             Dictionary<string, string> conditions3 = new Dictionary<string, string>();
+                            string opp = "";
                             for (int i = 4; i < elems.Length; i++)
                             {
-                                if (elems[i] != "and")
+                                if (elems[i].ToLower() != "and")
                                 {
-                                    if (elems[i].Contains("=="))
+                                    if (elems[i].ToLower() != "or")
                                     {
-                                        conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
-                                        conditions3.Add(elems[i].Split("==")[0], "==");
+                                        if (elems[i].Contains("=="))
+                                        {
+                                            conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
+                                            conditions3.Add(elems[i].Split("==")[0], "==");
+                                        }
+                                        else if (elems[i].Contains(">="))
+                                        {
+                                            conditions2.Add(elems[i].Split(">=")[0], elems[i].Split(">=")[1]);
+                                            conditions3.Add(elems[i].Split(">=")[0], ">=");
+                                        }
+                                        else if (elems[i].Contains("<="))
+                                        {
+                                            conditions2.Add(elems[i].Split("<=")[0], elems[i].Split("<=")[1]);
+                                            conditions3.Add(elems[i].Split("<=")[0], "<=");
+                                        }
+                                        else if (elems[i].Contains(">"))
+                                        {
+                                            conditions2.Add(elems[i].Split(">")[0], elems[i].Split(">")[1]);
+                                            conditions3.Add(elems[i].Split(">")[0], ">");
+                                        }
+                                        else if (elems[i].Contains("<"))
+                                        {
+                                            conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
+                                            conditions3.Add(elems[i].Split("<")[0], "<");
+                                        }
                                     }
-                                    else if (elems[i].Contains(">="))
+                                    else
                                     {
-                                        conditions2.Add(elems[i].Split(">=")[0], elems[i].Split(">=")[1]);
-                                        conditions3.Add(elems[i].Split(">=")[0], ">=");
+                                        opp = "or";
                                     }
-                                    else if (elems[i].Contains("<="))
-                                    {
-                                        conditions2.Add(elems[i].Split("<=")[0], elems[i].Split("<=")[1]);
-                                        conditions3.Add(elems[i].Split("<=")[0], "<=");
-                                    }
-                                    else if (elems[i].Contains(">"))
-                                    {
-                                        conditions2.Add(elems[i].Split(">")[0], elems[i].Split(">")[1]);
-                                        conditions3.Add(elems[i].Split(">")[0], ">");
-                                    }
-                                    else if (elems[i].Contains("<"))
-                                    {
-                                        conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
-                                        conditions3.Add(elems[i].Split("<")[0], "<");
-                                    }
+                                }
+                                else
+                                {
+                                    opp = "and";
                                 }
                             }
                             /*Console.Write("conditions : ");
@@ -242,7 +274,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 Console.Write(condition.Key + " " + condition.Value + " | ");
                             }*/
-                            rechercher(table).clear(conditions2,conditions3);
+                            rechercher(table).clear(conditions2,conditions3, opp);
                         }
                         else return false;
                     }

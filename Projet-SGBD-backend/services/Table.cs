@@ -101,7 +101,7 @@ namespace Projet_SGBD_backend.services
             rows.Remove(row);
             return true;
         }
-        public void print(List<string> values,Dictionary<string,string> conditions,Dictionary<string, string> conditionsOpp)
+        public void print(List<string> values,Dictionary<string,string> conditions,Dictionary<string, string> conditionsOpp, string oppLog = "")
         {
             List<string> fields=new List<string>();
             List<int> cols=new List<int>();
@@ -153,33 +153,68 @@ namespace Projet_SGBD_backend.services
             Console.WriteLine();
             foreach (Row row in rows)
             {
-                bool res = true;
-                foreach(KeyValuePair<int,dynamic> col in colsCondit)
+                bool res = false;
+                if (oppLog == "and" || oppLog=="")
                 {
-                    int res1;double res2;
-                    if (structTable.getField(col.Key).Type == TypeField.Integer)
+                    res = true;
+                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
                     {
-                        int.TryParse(row.get(col.Key), out res1);
-                        if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
-                        else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
-                        else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
-                        else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
-                        else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
-                    }
-                    else if (structTable.getField(col.Key).Type == TypeField.Reel) 
-                    { 
-                        double.TryParse(row.get(col.Key), out res2);
-                        if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
-                        else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
-                        else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
-                        else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
-                        else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
-                    }
-                    else
-                    {
-                        if (row.get(col.Key) != col.Value) res = false;
+                        int res1; double res2;
+                        if (structTable.getField(col.Key).Type == TypeField.Integer)
+                        {
+                            int.TryParse(row.get(col.Key), out res1);
+                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                        }
+                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                        {
+                            double.TryParse(row.get(col.Key), out res2);
+                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
+                        }
+                        else
+                        {
+                            if (row.get(col.Key) != col.Value) res = false;
+                        }
                     }
                 }
+                else if (oppLog == "or")
+                {
+                    res = false;
+                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
+                    {
+                        int res1; double res2;
+                        if (structTable.getField(col.Key).Type == TypeField.Integer)
+                        {
+                            int.TryParse(row.get(col.Key), out res1);
+                            if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                            else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
+                            else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<=" && res1 <= col.Value) res = true;
+                        }
+                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                        {
+                            double.TryParse(row.get(col.Key), out res2);
+                            if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                            else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
+                            else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<=" && res2 <= col.Value) res = true;
+                        }
+                        else
+                        {
+                            if (row.get(col.Key) == col.Value) res = true;
+                        }
+                    }
+                }
+                
                 if (res)
                 {
                     foreach (int col in cols)
@@ -191,7 +226,7 @@ namespace Projet_SGBD_backend.services
             }
         }
 
-        public void clear(Dictionary<string, string> args = null, Dictionary<string, string> opp=null)
+        public void clear(Dictionary<string, string> args = null, Dictionary<string, string> opp=null, string oppLog = "")
         {
             if (args == null)
             {
@@ -239,33 +274,68 @@ namespace Projet_SGBD_backend.services
                 List<Row> rowsToDel = new List<Row>();
                 foreach (Row row in rows)
                 {
-                    bool res = true;
-                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
+                    bool res=false;
+                    if (oppLog=="and" || oppLog == "")
                     {
-                        int res1; double res2;
-                        if (structTable.getField(col.Key).Type == TypeField.Integer)
+                        res = true;
+                        foreach (KeyValuePair<int, dynamic> col in colsCondit)
                         {
-                            int.TryParse(row.get(col.Key), out res1);
-                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
-                        }
-                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
-                        {
-                            double.TryParse(row.get(col.Key), out res2);
-                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
-                        }
-                        else
-                        {
-                            if (row.get(col.Key) != col.Value) res = false;
+                            int res1; double res2;
+                            if (structTable.getField(col.Key).Type == TypeField.Integer)
+                            {
+                                int.TryParse(row.get(col.Key), out res1);
+                                if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                            }
+                            else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                            {
+                                double.TryParse(row.get(col.Key), out res2);
+                                if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
+                            }
+                            else
+                            {
+                                if (row.get(col.Key) != col.Value) res = false;
+                            }
                         }
                     }
+                    else if (oppLog == "or")
+                    {
+                        res = false;
+                        foreach (KeyValuePair<int, dynamic> col in colsCondit)
+                        {
+                            int res1; double res2;
+                            if (structTable.getField(col.Key).Type == TypeField.Integer)
+                            {
+                                int.TryParse(row.get(col.Key), out res1);
+                                if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<=" && res1 <= col.Value) res = true;
+                            }
+                            else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                            {
+                                double.TryParse(row.get(col.Key), out res2);
+                                if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<=" && res2 <= col.Value) res = true;
+                            }
+                            else
+                            {
+                                if (row.get(col.Key) == col.Value) res = true;
+                            }
+                        }
+                    }
+                    
                     if (res)
                     {
                         rowsToDel.Add(row);
@@ -277,7 +347,7 @@ namespace Projet_SGBD_backend.services
                 }
             }
         }
-        public void update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null, Dictionary<string, string> opp = null)
+        public void update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null, Dictionary<string, string> opp = null, string oppLog="")
         {
             if(conditions!=null && newValues != null)
             {
@@ -324,31 +394,65 @@ namespace Projet_SGBD_backend.services
                 }
                 foreach (Row row in rows)
                 {
-                    bool res = true;
-                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
+                    bool res = false;
+                    if (oppLog=="and" || oppLog == "")
                     {
-                        int res1; double res2;
-                        if (structTable.getField(col.Key).Type == TypeField.Integer)
+                        res = true;
+                        foreach (KeyValuePair<int, dynamic> col in colsCondit)
                         {
-                            int.TryParse(row.get(col.Key), out res1);
-                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                            int res1; double res2;
+                            if (structTable.getField(col.Key).Type == TypeField.Integer)
+                            {
+                                int.TryParse(row.get(col.Key), out res1);
+                                if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                            }
+                            else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                            {
+                                double.TryParse(row.get(col.Key), out res2);
+                                if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                                else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
+                            }
+                            else
+                            {
+                                if (row.get(col.Key) != col.Value) res = false;
+                            }
                         }
-                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                    }
+                    else if (oppLog == "or")
+                    {
+                        res = false;
+                        foreach (KeyValuePair<int, dynamic> col in colsCondit)
                         {
-                            double.TryParse(row.get(col.Key), out res2);
-                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
-                            else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
-                            else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
-                        }
-                        else
-                        {
-                            if (row.get(col.Key) != col.Value) res = false;
+                            int res1; double res2;
+                            if (structTable.getField(col.Key).Type == TypeField.Integer)
+                            {
+                                int.TryParse(row.get(col.Key), out res1);
+                                if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<=" && res1 <= col.Value) res = true;
+                            }
+                            else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                            {
+                                double.TryParse(row.get(col.Key), out res2);
+                                if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
+                                else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<=" && res2 <= col.Value) res = true;
+                            }
+                            else
+                            {
+                                if (row.get(col.Key) == col.Value) res = true;
+                            }
                         }
                     }
                     if (res)
