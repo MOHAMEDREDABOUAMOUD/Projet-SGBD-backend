@@ -101,11 +101,12 @@ namespace Projet_SGBD_backend.services
             rows.Remove(row);
             return true;
         }
-        public void print(List<string> values,Dictionary<string,string> conditions)
+        public void print(List<string> values,Dictionary<string,string> conditions,Dictionary<string, string> conditionsOpp)
         {
             List<string> fields=new List<string>();
             List<int> cols=new List<int>();
             Dictionary<int,dynamic> colsCondit = new Dictionary<int, dynamic>();
+            Dictionary<int, string> colsOpp = new Dictionary<int, string>();
             int i = 0;
             foreach (Field field in structTable.Fields)
             {
@@ -119,16 +120,25 @@ namespace Projet_SGBD_backend.services
                     if (conditions[field.Name].Contains("'"))
                     {
                         colsCondit.Add(i, conditions[field.Name].Substring(1, conditions[field.Name].Length - 2) );
+                        colsOpp.Add(i, conditionsOpp[field.Name]);
                     }
                     else
                     {
                         double res=0;
                         bool isdouble = double.TryParse(conditions[field.Name],out res);
-                        if (isdouble) colsCondit.Add(i, res);
+                        if (isdouble)
+                        {
+                            colsCondit.Add(i, res);
+                            colsOpp.Add(i, conditionsOpp[field.Name]);
+                        }
                         else {
                             int res1 = 0;
                             bool isint=int.TryParse(conditions[field.Name], out res1);
-                            if (isint) colsCondit.Add(i, res1);
+                            if (isint)
+                            {
+                                colsCondit.Add(i, res1);
+                                colsOpp.Add(i, conditionsOpp[field.Name]);
+                            }
                             else Console.WriteLine("error");
                         }
                     }
@@ -150,15 +160,25 @@ namespace Projet_SGBD_backend.services
                     if (structTable.getField(col.Key).Type == TypeField.Integer)
                     {
                         int.TryParse(row.get(col.Key), out res1);
-                        if (res1 != col.Value) res = false;
+                        if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                        else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                        else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                        else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                        else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
                     }
                     else if (structTable.getField(col.Key).Type == TypeField.Reel) 
                     { 
                         double.TryParse(row.get(col.Key), out res2);
-                        if (res2 != col.Value) res = false;
+                        if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                        else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                        else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                        else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                        else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
                     }
-
-                    
+                    else
+                    {
+                        if (row.get(col.Key) != col.Value) res = false;
+                    }
                 }
                 if (res)
                 {

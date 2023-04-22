@@ -9,12 +9,14 @@ namespace Projet_SGBD_backend
     {
         static void Main(string[] args)
         {
-            StructTable table = new StructTable("t1");
+            /*StructTable table = new StructTable("t1");
             table.add("t1f1", TypeField.Text, Constraint.PrimaryKey);
             table.add("t1f2", TypeField.Integer, Constraint.NotNull);
             StructTable table1 = new StructTable("t2");
             table1.add("t2f3", TypeField.Text, Constraint.PrimaryKey);
-            table1.add("t2f4", TypeField.Integer, Constraint.NotNull);
+            table1.add("t2f4", TypeField.Integer, Constraint.NotNull);*/
+
+
             //IStructDatabase database = new StructDatabase("db1");
             //database.add(table);
             //database.add(table1);
@@ -31,11 +33,11 @@ namespace Projet_SGBD_backend
             /*Table tablee = new Table(table);
             Table tablee1 = new Table(table1);
             Row row = new Row();
-            row.add("t1f1e1");
-            row.add("t1f2e1");
+            row.add("Reda");
+            row.add("10");
             Row row1 = new Row();
-            row1.add("t2f3e2");
-            row1.add("t2f4e2");*/
+            row1.add("lastK");
+            row1.add("1");*/
 
             Database database = new Database("db1");
             /*database.add(tablee);
@@ -44,9 +46,10 @@ namespace Projet_SGBD_backend
             database.rechercher("t2").add(row1);*/
 
             database.load();
+
             //database.rechercher("t1").print();
 
-            database.executeQuery("select t1f1,t1f2 from t1 where t1f1==1");
+            database.executeQuery("select t1f1,t1f2 from t1 where t1f2==1");
             Console.WriteLine("------------------------------------------------------------------------------------------------------");
             database.executeQuery("select * from t1");
 
@@ -59,7 +62,7 @@ namespace Projet_SGBD_backend
             database.executeQuery("select * from t1");*/
 
             /*database.executeQuery("select * from t1");
-            database.executeUpdate("insert into t1 values('2',1)");
+            database.executeUpdate("insert into t1 values('reda1',1)");
             database.executeQuery("select * from t1");*/
 
             //database.save();
