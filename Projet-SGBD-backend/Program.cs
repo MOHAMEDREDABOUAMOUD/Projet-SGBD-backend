@@ -46,9 +46,9 @@ namespace Projet_SGBD_backend
             database.load();
             //database.rechercher("t1").print();
 
-            /*database.executeQuery("select t1f1,t1f2 from t1 where t1f1=='t1f1e11'");
+            database.executeQuery("select t1f1,t1f2 from t1 where t1f1==1");
             Console.WriteLine("------------------------------------------------------------------------------------------------------");
-            database.executeQuery("select * from t2");*/
+            database.executeQuery("select * from t1");
 
             /*database.executeQuery("select * from t1");
             database.executeUpdate("delete from t1 where t1f1=='t1f1e1'");
@@ -59,7 +59,7 @@ namespace Projet_SGBD_backend
             database.executeQuery("select * from t1");*/
 
             /*database.executeQuery("select * from t1");
-            database.executeUpdate("insert into t1 values('e2','e2')");
+            database.executeUpdate("insert into t1 values('2',1)");
             database.executeQuery("select * from t1");*/
 
             //database.save();

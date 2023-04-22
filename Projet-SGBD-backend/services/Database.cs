@@ -47,7 +47,8 @@ namespace Projet_SGBD_backend.services
                             {
                                 if (elems[i].Contains("=="))
                                 {
-                                    conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
+                                    //conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
+                                    conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
                                 }
                             }
                         }

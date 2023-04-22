@@ -17,6 +17,11 @@ namespace Projet_SGBD_backend.models
             elems = new List<string>();
         }
 
+        public int getSize()
+        {
+            return elems.Count;
+        }
+
         public string get(int index)
         {
             return elems[index];

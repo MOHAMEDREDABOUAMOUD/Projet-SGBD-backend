@@ -72,5 +72,9 @@ namespace Projet_SGBD_backend.services
             fields.Remove(f);
             return true;
         }
+        public Field getField(int index)
+        {
+            return fields[index];
+        }
     }
 }

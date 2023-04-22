@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Projet_SGBD_backend.enums;
 using Projet_SGBD_backend.models;
 using Projet_SGBD_backend.services.interfaces;
 
@@ -23,10 +24,58 @@ namespace Projet_SGBD_backend.services
         public List<Row> Rows { get => rows; set => rows = value; }
         public StructTable StructTable { get => structTable; set => structTable = value; }
 
+        private bool isRep(int i,string value)
+        {
+            for (int j = 0; j < rows.Count; j++)
+            {
+                if (rows[j].get(i) == value) return false;
+            }
+            return true;
+        }
+
         public bool add(Row row)
         {
-            rows.Add(row);
-            return true;
+            bool canAdd = true;
+            for (int i = 0; i < row.getSize(); i++)
+            {
+                if(structTable.getField(i).Constr==Constraint.PrimaryKey || structTable.getField(i).Constr == Constraint.Unique) {
+                    canAdd = isRep(i,row.get(i));
+                }
+                if (structTable.getField(i).Type == TypeField.Integer)
+                {
+                    if(!int.TryParse(row.get(i),out int res)) canAdd = false;
+                }
+                else if(structTable.getField(i).Type == TypeField.Reel)
+                {
+                    if (!double.TryParse(row.get(i), out double res)) canAdd = false;
+                }
+                else if(structTable.getField(i).Type == TypeField.Date)
+                {
+                    try
+                    {
+                        if(row.get(i).Split('-').Length!=3) canAdd = false;
+                        else
+                        {
+                            foreach (string s in row.get(i).Split('-'))
+                            {
+                                if (!int.TryParse(s, out int res)) canAdd = false;
+                            }
+                        }
+                    }
+                    catch (Exception e){
+                        Console.WriteLine(e);
+                    }
+                }
+            }
+            if(canAdd)
+            {
+                rows.Add(row);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool modify(int colonne, string value, string newValue)
@@ -56,7 +105,7 @@ namespace Projet_SGBD_backend.services
         {
             List<string> fields=new List<string>();
             List<int> cols=new List<int>();
-            Dictionary<int,string> colsCondit = new Dictionary<int, string>();
+            Dictionary<int,dynamic> colsCondit = new Dictionary<int, dynamic>();
             int i = 0;
             foreach (Field field in structTable.Fields)
             {
@@ -67,7 +116,22 @@ namespace Projet_SGBD_backend.services
                 }
                 if (conditions.Keys.Contains(field.Name))
                 {
-                    colsCondit.Add(i,field.Name);
+                    if (conditions[field.Name].Contains("'"))
+                    {
+                        colsCondit.Add(i, conditions[field.Name].Substring(1, conditions[field.Name].Length - 2) );
+                    }
+                    else
+                    {
+                        double res=0;
+                        bool isdouble = double.TryParse(conditions[field.Name],out res);
+                        if (isdouble) colsCondit.Add(i, res);
+                        else {
+                            int res1 = 0;
+                            bool isint=int.TryParse(conditions[field.Name], out res1);
+                            if (isint) colsCondit.Add(i, res1);
+                            else Console.WriteLine("error");
+                        }
+                    }
                 }
                 i++;
             }
@@ -80,9 +144,21 @@ namespace Projet_SGBD_backend.services
             foreach (Row row in rows)
             {
                 bool res = true;
-                foreach(KeyValuePair<int,string> col in colsCondit)
+                foreach(KeyValuePair<int,dynamic> col in colsCondit)
                 {
-                    if (row.get(col.Key) != col.Value) res = false;
+                    int res1;double res2;
+                    if (structTable.getField(col.Key).Type == TypeField.Integer)
+                    {
+                        int.TryParse(row.get(col.Key), out res1);
+                        if (res1 != col.Value) res = false;
+                    }
+                    else if (structTable.getField(col.Key).Type == TypeField.Reel) 
+                    { 
+                        double.TryParse(row.get(col.Key), out res2);
+                        if (res2 != col.Value) res = false;
+                    }
+
+                    
                 }
                 if (res)
                 {
