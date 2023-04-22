@@ -191,7 +191,7 @@ namespace Projet_SGBD_backend.services
             }
         }
 
-        public void clear(Dictionary<string, string> args = null)
+        public void clear(Dictionary<string, string> args = null, Dictionary<string, string> opp=null)
         {
             if (args == null)
             {
@@ -199,35 +199,91 @@ namespace Projet_SGBD_backend.services
             }
             else
             {
-                Dictionary<int, string> colsCondit = new Dictionary<int, string>();
+                Dictionary<int, dynamic> colsCondit = new Dictionary<int, dynamic>();
+                Dictionary<int, string> colsOpp = new Dictionary<int, string>();
                 int i = 0;
                 foreach (Field field in structTable.Fields)
                 {
                     if (args.Keys.Contains(field.Name))
                     {
-                        colsCondit.Add(i, args[field.Name]);
+                        if (args[field.Name].Contains("'"))
+                        {
+                            colsCondit.Add(i, args[field.Name].Substring(1, args[field.Name].Length - 2));
+                            colsOpp.Add(i, opp[field.Name]);
+                        }
+                        else
+                        {
+                            double res = 0;
+                            bool isdouble = double.TryParse(args[field.Name], out res);
+                            if (isdouble)
+                            {
+                                colsCondit.Add(i, res);
+                                colsOpp.Add(i, opp[field.Name]);
+                            }
+                            else
+                            {
+                                int res1 = 0;
+                                bool isint = int.TryParse(args[field.Name], out res1);
+                                if (isint)
+                                {
+                                    colsCondit.Add(i, res1);
+                                    colsOpp.Add(i, opp[field.Name]);
+                                }
+                                else Console.WriteLine("error");
+                            }
+                        }
+                        //colsCondit.Add(i, args[field.Name]);
                     }
                     i++;
                 }
+                List<Row> rowsToDel = new List<Row>();
                 foreach (Row row in rows)
                 {
-                    foreach(KeyValuePair<int,string> col in colsCondit)
+                    bool res = true;
+                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
                     {
-                        if (row.get(col.Key) == col.Value)
+                        int res1; double res2;
+                        if (structTable.getField(col.Key).Type == TypeField.Integer)
                         {
-                            rows.Remove(row);
-                            break;
+                            int.TryParse(row.get(col.Key), out res1);
+                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                        }
+                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                        {
+                            double.TryParse(row.get(col.Key), out res2);
+                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
+                        }
+                        else
+                        {
+                            if (row.get(col.Key) != col.Value) res = false;
                         }
                     }
+                    if (res)
+                    {
+                        rowsToDel.Add(row);
+                    }
+                }
+                foreach (var row in rowsToDel)
+                {
+                    rows.Remove(row);
                 }
             }
         }
-        public void update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null)
+        public void update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null, Dictionary<string, string> opp = null)
         {
             if(conditions!=null && newValues != null)
             {
-                Dictionary<int, string> colsCondit = new Dictionary<int, string>();
+                Dictionary<int, dynamic> colsCondit = new Dictionary<int, dynamic>();
                 Dictionary<int, string> colsNew = new Dictionary<int, string>();
+                Dictionary<int, string> colsOpp = new Dictionary<int, string>();
                 int i = 0;
                 foreach (Field field in structTable.Fields)
                 {
@@ -237,22 +293,69 @@ namespace Projet_SGBD_backend.services
                     }
                     if (conditions.Keys.Contains(field.Name))
                     {
-                        colsCondit.Add(i, conditions[field.Name]);
+                        if (conditions[field.Name].Contains("'"))
+                        {
+                            colsCondit.Add(i, conditions[field.Name].Substring(1, conditions[field.Name].Length - 2));
+                            colsOpp.Add(i, opp[field.Name]);
+                        }
+                        else
+                        {
+                            double res = 0;
+                            bool isdouble = double.TryParse(conditions[field.Name], out res);
+                            if (isdouble)
+                            {
+                                colsCondit.Add(i, res);
+                                colsOpp.Add(i, opp[field.Name]);
+                            }
+                            else
+                            {
+                                int res1 = 0;
+                                bool isint = int.TryParse(conditions[field.Name], out res1);
+                                if (isint)
+                                {
+                                    colsCondit.Add(i, res1);
+                                    colsOpp.Add(i, opp[field.Name]);
+                                }
+                                else Console.WriteLine("error");
+                            }
+                        }
                     }
                     i++;
                 }
                 foreach (Row row in rows)
                 {
-                    foreach(KeyValuePair<int,string> col in colsCondit)
+                    bool res = true;
+                    foreach (KeyValuePair<int, dynamic> col in colsCondit)
                     {
-                        Console.WriteLine("enter" + col.Key + " " + col.Value);
-                        if (row.get(col.Key) == col.Value)
+                        int res1; double res2;
+                        if (structTable.getField(col.Key).Type == TypeField.Integer)
                         {
-                            foreach (KeyValuePair<int, string> neww in colsNew)
-                            {
-                                row.modify(neww.Key, neww.Value);
-                            }
-                            break;
+                            int.TryParse(row.get(col.Key), out res1);
+                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res1 > col.Value) res = false;
+                        }
+                        else if (structTable.getField(col.Key).Type == TypeField.Reel)
+                        {
+                            double.TryParse(row.get(col.Key), out res2);
+                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
+                            else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<=" && res2 > col.Value) res = false;
+                        }
+                        else
+                        {
+                            if (row.get(col.Key) != col.Value) res = false;
+                        }
+                    }
+                    if (res)
+                    {
+                        foreach (KeyValuePair<int, string> neww in colsNew)
+                        {
+                            row.modify(neww.Key, neww.Value);
                         }
                     }
                 }
