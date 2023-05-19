@@ -111,6 +111,8 @@ namespace Projet_SGBD_backend.services
 
         public List<List<string>> executeQuery(string query)
         {
+            string orderby = "";
+            string ordered = "";
             string[] elems = query.Split(' ');
             if(elems[0].ToLower() == "select" && elems[2].ToLower() == "from")
             {
@@ -127,7 +129,12 @@ namespace Projet_SGBD_backend.services
                         {
                             if (elems[i].ToLower() != "and")
                             {
-                                if (elems[i].ToLower() != "or")
+                                if (elems[i].ToLower()=="order" && elems[i+1].ToLower()=="by" && (elems[i+3].ToLower()=="asc" || elems[i+3].ToLower()=="desc"))
+                                {
+                                    orderby = elems[i + 2];
+                                    ordered = elems[i + 3];
+                                }
+                                else if (elems[i].ToLower() != "or")
                                 {
                                     if (elems[i].Contains("="))
                                     {
@@ -174,7 +181,23 @@ namespace Projet_SGBD_backend.services
                         {
                             Console.Write(condition.Key + " " + condition.Value + " | ");
                         }*/
-                        return rechercher(table).select(columns.ToList(), conditions2,conditions3, opp);
+                        if (orderby == "")
+                        {
+                            return rechercher(table).select(columns.ToList(), conditions2, conditions3, opp);
+                        }
+                        else
+                        {
+                            return order(rechercher(table).select(columns.ToList(), conditions2, conditions3, opp), orderby, ordered);
+                        }
+                    }
+                    else if (elems[4].ToLower() == "order" && elems[5].ToLower() == "by" && (elems[7].ToLower() == "asc" || elems[7].ToLower() == "desc"))
+                    {
+                        orderby = elems[6];
+                        ordered = elems[7];
+                        if (orderby != "")
+                        {
+                            return order(rechercher(table).select(columns.ToList(), new Dictionary<string, string>(), new Dictionary<string, string>()), orderby, ordered);
+                        }
                     }
                     else
                     {
@@ -190,6 +213,7 @@ namespace Projet_SGBD_backend.services
             {
                 return null;
             }
+            return null;
         }
 
         public bool executeUpdate(string query)
@@ -240,48 +264,51 @@ namespace Projet_SGBD_backend.services
                                 }
                             }
                         }
-                        if (elems[i].ToLower() == "where")
+                        if (elems.Length > i)
                         {
-                            for (int j = i+1; j < elems.Length; j++)
+                            if (elems[i].ToLower() == "where")
                             {
-                                if(elems[j].ToLower() != "and")
+                                for (int j = i + 1; j < elems.Length; j++)
                                 {
-                                    if (elems[j].ToLower() != "or")
+                                    if (elems[j].ToLower() != "and")
                                     {
-                                        if (elems[j].Contains("="))
+                                        if (elems[j].ToLower() != "or")
                                         {
-                                            conditions.Add(elems[j].Split("=")[0], elems[j].Split("=")[1]);
-                                            conditions3.Add(elems[j].Split("=")[0], "=");
+                                            if (elems[j].Contains("="))
+                                            {
+                                                conditions.Add(elems[j].Split("=")[0], elems[j].Split("=")[1]);
+                                                conditions3.Add(elems[j].Split("=")[0], "=");
+                                            }
+                                            else if (elems[j].Contains(">="))
+                                            {
+                                                conditions.Add(elems[j].Split(">=")[0], elems[j].Split(">=")[1]);
+                                                conditions3.Add(elems[j].Split(">=")[0], ">=");
+                                            }
+                                            else if (elems[j].Contains("<="))
+                                            {
+                                                conditions.Add(elems[j].Split("<=")[0], elems[j].Split("<=")[1]);
+                                                conditions3.Add(elems[j].Split("<=")[0], "<=");
+                                            }
+                                            else if (elems[j].Contains(">"))
+                                            {
+                                                conditions.Add(elems[j].Split(">")[0], elems[j].Split(">")[1]);
+                                                conditions3.Add(elems[j].Split(">")[0], ">");
+                                            }
+                                            else if (elems[j].Contains("<"))
+                                            {
+                                                conditions.Add(elems[j].Split("<")[0], elems[j].Split("<")[1]);
+                                                conditions3.Add(elems[j].Split("<")[0], "<");
+                                            }
                                         }
-                                        else if (elems[j].Contains(">="))
+                                        else
                                         {
-                                            conditions.Add(elems[j].Split(">=")[0], elems[j].Split(">=")[1]);
-                                            conditions3.Add(elems[j].Split(">=")[0], ">=");
-                                        }
-                                        else if (elems[j].Contains("<="))
-                                        {
-                                            conditions.Add(elems[j].Split("<=")[0], elems[j].Split("<=")[1]);
-                                            conditions3.Add(elems[j].Split("<=")[0], "<=");
-                                        }
-                                        else if (elems[j].Contains(">"))
-                                        {
-                                            conditions.Add(elems[j].Split(">")[0], elems[j].Split(">")[1]);
-                                            conditions3.Add(elems[j].Split(">")[0], ">");
-                                        }
-                                        else if (elems[j].Contains("<"))
-                                        {
-                                            conditions.Add(elems[j].Split("<")[0], elems[j].Split("<")[1]);
-                                            conditions3.Add(elems[j].Split("<")[0], "<");
+                                            opp = "or";
                                         }
                                     }
                                     else
                                     {
-                                        opp = "or";
+                                        opp = "and";
                                     }
-                                }
-                                else
-                                {
-                                    opp = "and";
                                 }
                             }
                         }
@@ -427,6 +454,91 @@ namespace Projet_SGBD_backend.services
             {
                 table.StructTable.Describe();
             }
+        }
+        List<List<string>> order(List<List<string>> data, string orderby, string ordered)
+        {
+            int col = 0;
+            for(int i = 0; i < data[0].Count; i++)
+            {
+                if (data[0][i] == orderby)
+                {
+                    col = i;
+                    break;
+                }
+            }
+            List<string> pourPremutation;
+            for(int i = 1; i < data.Count; i++)
+            {
+                for(int j = i+1; j < data.Count; j++)
+                {
+                    if (data[i][col].GetType() == typeof(string))
+                    {
+                        if (string.Compare(data[i][col],data[j][col])>0 && ordered=="asc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                        else if (string.Compare(data[i][col], data[j][col]) < 0 && ordered == "desc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                    }
+                    else if (data[i][col].GetType() == typeof(int))
+                    {
+                        if (int.Parse(data[i][col]) > int.Parse(data[j][col]) && ordered == "asc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                        else if (int.Parse(data[i][col]) < int.Parse(data[j][col]) && ordered == "desc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                    }
+                    else if (data[i][col].GetType() == typeof(float))
+                    {
+                        if (float.Parse(data[i][col]) > float.Parse(data[j][col]) && ordered == "asc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                        else if (float.Parse(data[i][col]) < float.Parse(data[j][col]) && ordered == "desc")
+                        {
+                            Console.WriteLine("permuter");
+                            pourPremutation = data[i];
+                            data[i] = data[j];
+                            data[j] = pourPremutation;
+
+                        }
+                    }
+                }
+            }
+            foreach (var d in data)
+            {
+                foreach (var d1 in d)
+                {
+                    Console.Write(d1+" | ");
+                }
+                Console.WriteLine();
+            }
+            return data;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace Projet_SGBD_backend
 {
     internal class Program
     {
+        static List<Database> databases = new List<Database>();
         static void Main(string[] args)
         {
             /*StructTable table = new StructTable("t1");
@@ -66,6 +67,19 @@ namespace Projet_SGBD_backend
             database.executeQuery("select * from t1");*/
 
             //database.save();
+
+            //load();
+            //databases[1].executeQuery("select * from ordinateur");
+        }
+        static void load()
+        {
+            int index = 0;
+            foreach (string file in Directory.GetFiles("databases"))
+            {
+                databases.Add(new Database(Path.GetFileName(file)));
+                databases[index].load(file);
+                index++;
+            }
         }
     }
 }
