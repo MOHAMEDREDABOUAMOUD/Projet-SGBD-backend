@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Projet_SGBD_backend.enums;
 using Projet_SGBD_backend.models;
 using Projet_SGBD_backend.services.interfaces;
 
 namespace Projet_SGBD_backend.services
 {
+    [Serializable]
     public class Database : IDatabase
     {
         string name;
@@ -22,13 +25,91 @@ namespace Projet_SGBD_backend.services
         public string Name { get => name; set => name = value; }
         public List<Table> Tables { get => tables; set => tables = value; }
 
+        public Table getTable(int index)
+        {
+            return tables[index];
+        }
+
+        public int getSizeTables()
+        {
+            return tables.Count;
+        }
+
         public bool add(Table table)
         {
             tables.Add(table);
             return true;
         }
 
-        public bool executeQuery(string query)
+        public bool addTable(string name, List<string> elems)
+        {
+            StructTable t = new StructTable(name);
+            foreach (string element in elems)
+            {
+                List<string> elem = element.Split(' ').ToList();
+                if (elem.Count == 3)
+                {
+                    TypeField type=TypeField.Text;
+                    switch (elem[1].ToLower())
+                    {
+                        case "int":
+                            type = TypeField.Integer;
+                            break;
+                        case "varchar":
+                            type = TypeField.Text;
+                            break;
+                        case "float":
+                            type = TypeField.Reel;
+                            break;
+                        case "date":
+                            type= TypeField.Date;
+                            break;
+                    }
+                    enums.Constraint constraint=enums.Constraint.NotNull;
+                    switch (elem[2].ToLower())
+                    {
+                        case "primarykey":
+                            constraint= enums.Constraint.PrimaryKey;
+                            break;
+                        case "null":
+                            constraint=enums.Constraint.Null;
+                            break;
+                        case "notnull":
+                            constraint = enums.Constraint.NotNull;
+                            break;
+                        case "uniq":
+                            constraint = enums.Constraint.Unique;
+                            break;
+                    }
+                    t.add(elem[0], type, constraint);
+                }
+                else if (elem.Count == 2)
+                {
+                    TypeField type=TypeField.Text;
+                    switch (elem[1].ToLower())
+                    {
+                        case "int":
+                            type = TypeField.Integer;
+                            break;
+                        case "varchar":
+                            type = TypeField.Text;
+                            break;
+                        case "float":
+                            type = TypeField.Reel;
+                            break;
+                        case "date":
+                            type = TypeField.Date;
+                            break;
+                    }
+                    t.add(elem[0], type, enums.Constraint.NotNull);
+                }
+                else return false;
+            }
+            add(new Table(t));
+            return true;
+        }
+
+        public List<List<string>> executeQuery(string query)
         {
             string[] elems = query.Split(' ');
             if(elems[0].ToLower() == "select" && elems[2].ToLower() == "from")
@@ -48,11 +129,11 @@ namespace Projet_SGBD_backend.services
                             {
                                 if (elems[i].ToLower() != "or")
                                 {
-                                    if (elems[i].Contains("=="))
+                                    if (elems[i].Contains("="))
                                     {
-                                        //conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1].Substring(1, elems[i].Split("==")[1].Length - 2));
-                                        conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
-                                        conditions3.Add(elems[i].Split("==")[0], "==");
+                                        //conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1].Substring(1, elems[i].Split("=")[1].Length - 2));
+                                        conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
+                                        conditions3.Add(elems[i].Split("=")[0], "=");
                                     }
                                     else if (elems[i].Contains(">="))
                                     {
@@ -93,22 +174,21 @@ namespace Projet_SGBD_backend.services
                         {
                             Console.Write(condition.Key + " " + condition.Value + " | ");
                         }*/
-                        rechercher(table).print(columns.ToList(), conditions2,conditions3, opp);
+                        return rechercher(table).select(columns.ToList(), conditions2,conditions3, opp);
                     }
                     else
                     {
-                        return false;
+                        return null;
                     }
                 }
                 else
                 {
-                    rechercher(table).print(columns.ToList(), new Dictionary<string, string>(), new Dictionary<string, string>());
+                    return rechercher(table).select(columns.ToList(), new Dictionary<string, string>(), new Dictionary<string, string>());
                 }
-                return true;
             }
             else
             {
-                return false;
+                return null;
             }
         }
 
@@ -133,7 +213,7 @@ namespace Projet_SGBD_backend.services
                                 row.add(value.Substring(1,value.Length-2));
                             }
                         }
-                        rechercher(table).add(row);
+                        return rechercher(table).insert(row);
                     }
                 }
             }
@@ -168,10 +248,10 @@ namespace Projet_SGBD_backend.services
                                 {
                                     if (elems[j].ToLower() != "or")
                                     {
-                                        if (elems[j].Contains("=="))
+                                        if (elems[j].Contains("="))
                                         {
-                                            conditions.Add(elems[j].Split("==")[0], elems[j].Split("==")[1]);
-                                            conditions3.Add(elems[j].Split("==")[0], "==");
+                                            conditions.Add(elems[j].Split("=")[0], elems[j].Split("=")[1]);
+                                            conditions3.Add(elems[j].Split("=")[0], "=");
                                         }
                                         else if (elems[j].Contains(">="))
                                         {
@@ -205,7 +285,7 @@ namespace Projet_SGBD_backend.services
                                 }
                             }
                         }
-                        rechercher(table).update(newValues,conditions,conditions3, opp);
+                        return rechercher(table).update(newValues,conditions,conditions3, opp);
                     }
                 }
             }
@@ -227,10 +307,10 @@ namespace Projet_SGBD_backend.services
                                 {
                                     if (elems[i].ToLower() != "or")
                                     {
-                                        if (elems[i].Contains("=="))
+                                        if (elems[i].Contains("="))
                                         {
-                                            conditions2.Add(elems[i].Split("==")[0], elems[i].Split("==")[1]);
-                                            conditions3.Add(elems[i].Split("==")[0], "==");
+                                            conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
+                                            conditions3.Add(elems[i].Split("=")[0], "=");
                                         }
                                         else if (elems[i].Contains(">="))
                                         {
@@ -274,13 +354,13 @@ namespace Projet_SGBD_backend.services
                             {
                                 Console.Write(condition.Key + " " + condition.Value + " | ");
                             }*/
-                            rechercher(table).clear(conditions2,conditions3, opp);
+                            return rechercher(table).delete(conditions2,conditions3, opp);
                         }
                         else return false;
                     }
                     else
                     {
-                        rechercher(table).clear();
+                        return rechercher(table).delete();
                     }
                 }
                 else
@@ -295,13 +375,16 @@ namespace Projet_SGBD_backend.services
             return false;
         }
 
-        public void load()
+        public void load(string path= "")
         {
-            FileStream fs2 = new FileStream("./" + Name + ".json", FileMode.Open);
-            Database backup = JsonSerializer.Deserialize(fs2, typeof(Database)) as Database;
-            fs2.Close();
-            Name = backup.Name;
-            tables = backup.Tables;
+            if (path != "")
+            {
+                FileStream fs2 = new FileStream(path, FileMode.Open);
+                Database backup = JsonSerializer.Deserialize(fs2, typeof(Database)) as Database;
+                fs2.Close();
+                Name = backup.Name;
+                tables = backup.Tables;
+            }
         }
 
         public bool modify(string tableName, string NewTableName)
@@ -327,11 +410,14 @@ namespace Projet_SGBD_backend.services
             return true;
         }
 
-        public void save()
+        public void save(string path = "")
         {
-            FileStream fs = new FileStream("./" + Name + ".json", FileMode.Create);
-            JsonSerializer.Serialize(fs, this);//une methode static du class jsonSerializer
-            fs.Close();
+            if (path != "")
+            {
+                FileStream fs = new FileStream(path, FileMode.Create);
+                JsonSerializer.Serialize(fs, this);//une methode static du class jsonSerializer
+                fs.Close();
+            }
         }
 
         public void ShowTables()

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Projet_SGBD_backend.models
 {
+    [Serializable]
     public class Row
     {
         List<string> elems;

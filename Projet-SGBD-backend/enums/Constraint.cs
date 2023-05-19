@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Projet_SGBD_backend.enums
 {
+    [Serializable]
     public enum Constraint
     {
         PrimaryKey, NotNull, Null, Unique

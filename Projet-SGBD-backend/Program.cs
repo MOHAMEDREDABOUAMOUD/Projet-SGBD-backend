@@ -39,13 +39,13 @@ namespace Projet_SGBD_backend
             row1.add("lastK");
             row1.add("1");*/
 
-            Database database = new Database("db1");
+            //Database database = new Database("db1");
             /*database.add(tablee);
             database.add(tablee1);
             database.rechercher("t1").add(row);
             database.rechercher("t2").add(row1);*/
 
-            database.load();
+            //database.load();
 
             //database.rechercher("t1").print();
 

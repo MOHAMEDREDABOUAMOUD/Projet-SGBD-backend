@@ -13,9 +13,9 @@ namespace Projet_SGBD_backend.services.interfaces
         public bool modify(string tableName, string NewTableName);
 
         public void ShowTables();
-        public void save();
-        public void load();
-        public bool executeQuery(string query);
+        public void save(string path);
+        public void load(string path);
+        public List<List<string>> executeQuery(string query);
 
         public bool executeUpdate(string query);
     }

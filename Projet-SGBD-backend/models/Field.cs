@@ -7,6 +7,7 @@ using Projet_SGBD_backend.enums;
 
 namespace Projet_SGBD_backend.models
 {
+    [Serializable]
     public class Field
     {
         string name;

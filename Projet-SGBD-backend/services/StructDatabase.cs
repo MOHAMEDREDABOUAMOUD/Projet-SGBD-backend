@@ -8,6 +8,7 @@ using Projet_SGBD_backend.services.interfaces;
 
 namespace Projet_SGBD_backend.services
 {
+    [Serializable]
     public class StructDatabase : IStructDatabase
     {
         string name;

@@ -9,6 +9,7 @@ using Projet_SGBD_backend.services.interfaces;
 
 namespace Projet_SGBD_backend.services
 {
+    [Serializable]
     public class StructTable : IStructTable
     {
         string name;
@@ -71,6 +72,10 @@ namespace Projet_SGBD_backend.services
             Field f = rechercher(name);
             fields.Remove(f);
             return true;
+        }
+        public int getSizeFields()
+        {
+            return fields.Count;
         }
         public Field getField(int index)
         {

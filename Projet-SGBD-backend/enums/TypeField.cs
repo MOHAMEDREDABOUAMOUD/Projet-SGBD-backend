@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Projet_SGBD_backend.enums
 {
+    [Serializable]
     public enum TypeField
     {
         Integer, Reel, Text, Date

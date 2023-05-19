@@ -10,6 +10,7 @@ using Projet_SGBD_backend.services.interfaces;
 
 namespace Projet_SGBD_backend.services
 {
+    [Serializable]
     public class Table : ITable
     {
         List<Row> rows;
@@ -24,6 +25,15 @@ namespace Projet_SGBD_backend.services
         public List<Row> Rows { get => rows; set => rows = value; }
         public StructTable StructTable { get => structTable; set => structTable = value; }
 
+        public int getSizeRows()
+        {
+            return rows.Count;
+        }
+        public Row getRow(int index)
+        {
+            return rows[index];
+        }
+
         private bool isRep(int i,string value)
         {
             for (int j = 0; j < rows.Count; j++)
@@ -33,37 +43,44 @@ namespace Projet_SGBD_backend.services
             return true;
         }
 
-        public bool add(Row row)
+        public bool insert(Row row)
         {
             bool canAdd = true;
-            for (int i = 0; i < row.getSize(); i++)
+            if(row.getSize()!=structTable.getSizeFields()) canAdd = false;
+            else
             {
-                if(structTable.getField(i).Constr==Constraint.PrimaryKey || structTable.getField(i).Constr == Constraint.Unique) {
-                    canAdd = isRep(i,row.get(i));
-                }
-                if (structTable.getField(i).Type == TypeField.Integer)
+                for (int i = 0; i < row.getSize(); i++)
                 {
-                    if(!int.TryParse(row.get(i),out int res)) canAdd = false;
-                }
-                else if(structTable.getField(i).Type == TypeField.Reel)
-                {
-                    if (!double.TryParse(row.get(i), out double res)) canAdd = false;
-                }
-                else if(structTable.getField(i).Type == TypeField.Date)
-                {
-                    try
+                    if (structTable.getField(i).Constr == Constraint.PrimaryKey || structTable.getField(i).Constr == Constraint.Unique)
                     {
-                        if(row.get(i).Split('-').Length!=3) canAdd = false;
-                        else
+                        if(!isRep(i, row.get(i))) canAdd = false;
+                    }
+                    if (structTable.getField(i).Type == TypeField.Integer)
+                    {
+                        if (!int.TryParse(row.get(i), out int res)) canAdd = false;
+                    }
+                    else if (structTable.getField(i).Type == TypeField.Reel)
+                    {
+                        if (!double.TryParse(row.get(i), out double res)) canAdd = false;
+                    }
+                    else if (structTable.getField(i).Type == TypeField.Date)
+                    {
+                        try
                         {
-                            foreach (string s in row.get(i).Split('-'))
+                            if (row.get(i).Split('-').Length != 3) canAdd = false;
+                            else if (row.get(i).Split('-')[0].Length != 4 || row.get(i).Split('-')[1].Length != 2 || row.get(i).Split('-')[2].Length != 2) canAdd = false;
+                            else
                             {
-                                if (!int.TryParse(s, out int res)) canAdd = false;
+                                foreach (string s in row.get(i).Split('-'))
+                                {
+                                    if (!int.TryParse(s, out int res)) canAdd = false;
+                                }
                             }
                         }
-                    }
-                    catch (Exception e){
-                        Console.WriteLine(e);
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
                     }
                 }
             }
@@ -78,31 +95,9 @@ namespace Projet_SGBD_backend.services
             }
         }
 
-        public bool modify(int colonne, string value, string newValue)
+        public List<List<string>> select(List<string> values,Dictionary<string,string> conditions,Dictionary<string, string> conditionsOpp, string oppLog = "")
         {
-            Row row = rechercher(colonne, value);
-            row.modify(colonne, newValue);
-           //row.Elems[colonne] = newValue;
-            return true;
-        }
-
-        public Row rechercher(int colonne, string value)
-        {
-            foreach (Row row in rows)
-            {
-                if (row.get(colonne) == value) return row;
-            }
-            return null;
-        }
-
-        public bool remove(int colonne, string value)
-        {
-            Row row = rechercher(colonne, value);
-            rows.Remove(row);
-            return true;
-        }
-        public void print(List<string> values,Dictionary<string,string> conditions,Dictionary<string, string> conditionsOpp, string oppLog = "")
-        {
+            List<List<string>> resultat=new List<List<string>>();
             List<string> fields=new List<string>();
             List<int> cols=new List<int>();
             Dictionary<int,dynamic> colsCondit = new Dictionary<int, dynamic>();
@@ -146,11 +141,14 @@ namespace Projet_SGBD_backend.services
                 i++;
             }
             Console.WriteLine();
+            resultat.Add(new List<string>());
             foreach (string field in fields)
             {
                 Console.Write(field+" | ");
+                resultat[0].Add(field);
             }
             Console.WriteLine();
+            int index = 1;
             foreach (Row row in rows)
             {
                 bool res = false;
@@ -163,7 +161,7 @@ namespace Projet_SGBD_backend.services
                         if (structTable.getField(col.Key).Type == TypeField.Integer)
                         {
                             int.TryParse(row.get(col.Key), out res1);
-                            if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                            if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
                             else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                             else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                             else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -172,7 +170,7 @@ namespace Projet_SGBD_backend.services
                         else if (structTable.getField(col.Key).Type == TypeField.Reel)
                         {
                             double.TryParse(row.get(col.Key), out res2);
-                            if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                            if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
                             else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                             else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                             else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -193,7 +191,7 @@ namespace Projet_SGBD_backend.services
                         if (structTable.getField(col.Key).Type == TypeField.Integer)
                         {
                             int.TryParse(row.get(col.Key), out res1);
-                            if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                            if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
                             else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                             else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                             else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -202,7 +200,7 @@ namespace Projet_SGBD_backend.services
                         else if (structTable.getField(col.Key).Type == TypeField.Reel)
                         {
                             double.TryParse(row.get(col.Key), out res2);
-                            if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                            if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
                             else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                             else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                             else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -217,20 +215,24 @@ namespace Projet_SGBD_backend.services
                 
                 if (res)
                 {
+                    resultat.Add(new List<string>());
                     foreach (int col in cols)
                     {
                         Console.Write(row.get(col) + " | ");
+                        resultat[index].Add(row.get(col));
                     }
+                    index++;
                     Console.WriteLine();
                 }
             }
+            return resultat;
         }
-
-        public void clear(Dictionary<string, string> args = null, Dictionary<string, string> opp=null, string oppLog = "")
+        public bool delete(Dictionary<string, string> args = null, Dictionary<string, string> opp=null, string oppLog = "")
         {
             if (args == null)
             {
                 rows.Clear();
+                return true;
             }
             else
             {
@@ -284,7 +286,7 @@ namespace Projet_SGBD_backend.services
                             if (structTable.getField(col.Key).Type == TypeField.Integer)
                             {
                                 int.TryParse(row.get(col.Key), out res1);
-                                if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                                if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -293,7 +295,7 @@ namespace Projet_SGBD_backend.services
                             else if (structTable.getField(col.Key).Type == TypeField.Reel)
                             {
                                 double.TryParse(row.get(col.Key), out res2);
-                                if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                                if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -314,7 +316,7 @@ namespace Projet_SGBD_backend.services
                             if (structTable.getField(col.Key).Type == TypeField.Integer)
                             {
                                 int.TryParse(row.get(col.Key), out res1);
-                                if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                                if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -323,7 +325,7 @@ namespace Projet_SGBD_backend.services
                             else if (structTable.getField(col.Key).Type == TypeField.Reel)
                             {
                                 double.TryParse(row.get(col.Key), out res2);
-                                if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                                if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -345,11 +347,12 @@ namespace Projet_SGBD_backend.services
                 {
                     rows.Remove(row);
                 }
+                return true;
             }
         }
-        public void update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null, Dictionary<string, string> opp = null, string oppLog="")
+        public bool update(Dictionary<string, string> newValues = null, Dictionary<string, string> conditions = null, Dictionary<string, string> opp = null, string oppLog="")
         {
-            if(conditions!=null && newValues != null)
+            if (conditions != null && newValues != null)
             {
                 Dictionary<int, dynamic> colsCondit = new Dictionary<int, dynamic>();
                 Dictionary<int, string> colsNew = new Dictionary<int, string>();
@@ -395,7 +398,7 @@ namespace Projet_SGBD_backend.services
                 foreach (Row row in rows)
                 {
                     bool res = false;
-                    if (oppLog=="and" || oppLog == "")
+                    if (oppLog == "and" || oppLog == "")
                     {
                         res = true;
                         foreach (KeyValuePair<int, dynamic> col in colsCondit)
@@ -404,7 +407,7 @@ namespace Projet_SGBD_backend.services
                             if (structTable.getField(col.Key).Type == TypeField.Integer)
                             {
                                 int.TryParse(row.get(col.Key), out res1);
-                                if (colsOpp[col.Key] == "==" && res1 != col.Value) res = false;
+                                if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -413,7 +416,7 @@ namespace Projet_SGBD_backend.services
                             else if (structTable.getField(col.Key).Type == TypeField.Reel)
                             {
                                 double.TryParse(row.get(col.Key), out res2);
-                                if (colsOpp[col.Key] == "==" && res2 != col.Value) res = false;
+                                if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -434,7 +437,7 @@ namespace Projet_SGBD_backend.services
                             if (structTable.getField(col.Key).Type == TypeField.Integer)
                             {
                                 int.TryParse(row.get(col.Key), out res1);
-                                if (colsOpp[col.Key] == "==" && res1 == col.Value) res = true;
+                                if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -443,7 +446,7 @@ namespace Projet_SGBD_backend.services
                             else if (structTable.getField(col.Key).Type == TypeField.Reel)
                             {
                                 double.TryParse(row.get(col.Key), out res2);
-                                if (colsOpp[col.Key] == "==" && res2 == col.Value) res = true;
+                                if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -463,7 +466,34 @@ namespace Projet_SGBD_backend.services
                         }
                     }
                 }
+                return true;
             }
+            else return false;
+        }
+
+
+        public bool modify(int colonne, string value, string newValue)
+        {
+            Row row = rechercher(colonne, value);
+            row.modify(colonne, newValue);
+            //row.Elems[colonne] = newValue;
+            return true;
+        }
+
+        public Row rechercher(int colonne, string value)
+        {
+            foreach (Row row in rows)
+            {
+                if (row.get(colonne) == value) return row;
+            }
+            return null;
+        }
+
+        public bool remove(int colonne, string value)
+        {
+            Row row = rechercher(colonne, value);
+            rows.Remove(row);
+            return true;
         }
     }
 }
