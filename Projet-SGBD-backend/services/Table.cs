@@ -162,6 +162,7 @@ namespace Projet_SGBD_backend.services
                         {
                             int.TryParse(row.get(col.Key), out res1);
                             if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<>" && res1 == col.Value) res = false;
                             else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                             else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                             else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -171,6 +172,7 @@ namespace Projet_SGBD_backend.services
                         {
                             double.TryParse(row.get(col.Key), out res2);
                             if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
+                            else if (colsOpp[col.Key] == "<>" && res2 == col.Value) res = false;
                             else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                             else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                             else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -192,6 +194,7 @@ namespace Projet_SGBD_backend.services
                         {
                             int.TryParse(row.get(col.Key), out res1);
                             if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<>" && res1 != col.Value) res = true;
                             else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                             else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                             else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -201,6 +204,7 @@ namespace Projet_SGBD_backend.services
                         {
                             double.TryParse(row.get(col.Key), out res2);
                             if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
+                            else if (colsOpp[col.Key] == "<>" && res2 != col.Value) res = true;
                             else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                             else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                             else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -287,6 +291,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 int.TryParse(row.get(col.Key), out res1);
                                 if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<>" && res1 == col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -296,6 +301,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 double.TryParse(row.get(col.Key), out res2);
                                 if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<>" && res2 == col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -317,6 +323,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 int.TryParse(row.get(col.Key), out res1);
                                 if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<>" && res1 != col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -326,6 +333,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 double.TryParse(row.get(col.Key), out res2);
                                 if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<>" && res2 != col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -408,6 +416,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 int.TryParse(row.get(col.Key), out res1);
                                 if (colsOpp[col.Key] == "=" && res1 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<>" && res1 == col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res1 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res1 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res1 < col.Value) res = false;
@@ -417,6 +426,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 double.TryParse(row.get(col.Key), out res2);
                                 if (colsOpp[col.Key] == "=" && res2 != col.Value) res = false;
+                                else if (colsOpp[col.Key] == "<>" && res2 == col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">" && res2 <= col.Value) res = false;
                                 else if (colsOpp[col.Key] == "<" && res2 >= col.Value) res = false;
                                 else if (colsOpp[col.Key] == ">=" && res2 < col.Value) res = false;
@@ -438,6 +448,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 int.TryParse(row.get(col.Key), out res1);
                                 if (colsOpp[col.Key] == "=" && res1 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<>" && res1 != col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res1 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res1 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res1 >= col.Value) res = true;
@@ -447,6 +458,7 @@ namespace Projet_SGBD_backend.services
                             {
                                 double.TryParse(row.get(col.Key), out res2);
                                 if (colsOpp[col.Key] == "=" && res2 == col.Value) res = true;
+                                else if (colsOpp[col.Key] == "<>" && res2 != col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">" && res2 > col.Value) res = true;
                                 else if (colsOpp[col.Key] == "<" && res2 < col.Value) res = true;
                                 else if (colsOpp[col.Key] == ">=" && res2 >= col.Value) res = true;
@@ -470,7 +482,6 @@ namespace Projet_SGBD_backend.services
             }
             else return false;
         }
-
 
         public bool modify(int colonne, string value, string newValue)
         {

@@ -69,7 +69,7 @@ namespace Projet_SGBD_backend
             //database.save();
 
             //load();
-            //databases[1].executeQuery("select * from ordinateur");
+            //databases[1].executeQuery("select * from ordinateur where id<>1");
         }
         static void load()
         {

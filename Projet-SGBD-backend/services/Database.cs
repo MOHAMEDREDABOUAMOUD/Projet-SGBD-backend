@@ -136,11 +136,10 @@ namespace Projet_SGBD_backend.services
                                 }
                                 else if (elems[i].ToLower() != "or")
                                 {
-                                    if (elems[i].Contains("="))
+                                    if (elems[i].Contains("<>"))
                                     {
-                                        //conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1].Substring(1, elems[i].Split("=")[1].Length - 2));
-                                        conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
-                                        conditions3.Add(elems[i].Split("=")[0], "=");
+                                        conditions2.Add(elems[i].Split("<>")[0], elems[i].Split("<>")[1]);
+                                        conditions3.Add(elems[i].Split("<>")[0], "<>");
                                     }
                                     else if (elems[i].Contains(">="))
                                     {
@@ -161,6 +160,12 @@ namespace Projet_SGBD_backend.services
                                     {
                                         conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
                                         conditions3.Add(elems[i].Split("<")[0], "<");
+                                    }
+                                    else if (elems[i].Contains("="))
+                                    {
+                                        //conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1].Substring(1, elems[i].Split("=")[1].Length - 2));
+                                        conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
+                                        conditions3.Add(elems[i].Split("=")[0], "=");
                                     }
                                 }
                                 else
@@ -274,10 +279,10 @@ namespace Projet_SGBD_backend.services
                                     {
                                         if (elems[j].ToLower() != "or")
                                         {
-                                            if (elems[j].Contains("="))
+                                            if (elems[j].Contains("<>"))
                                             {
-                                                conditions.Add(elems[j].Split("=")[0], elems[j].Split("=")[1]);
-                                                conditions3.Add(elems[j].Split("=")[0], "=");
+                                                conditions.Add(elems[j].Split("<>")[0], elems[j].Split("<>")[1]);
+                                                conditions3.Add(elems[j].Split("<>")[0], "<>");
                                             }
                                             else if (elems[j].Contains(">="))
                                             {
@@ -298,6 +303,11 @@ namespace Projet_SGBD_backend.services
                                             {
                                                 conditions.Add(elems[j].Split("<")[0], elems[j].Split("<")[1]);
                                                 conditions3.Add(elems[j].Split("<")[0], "<");
+                                            }
+                                            else if (elems[j].Contains("="))
+                                            {
+                                                conditions.Add(elems[j].Split("=")[0], elems[j].Split("=")[1]);
+                                                conditions3.Add(elems[j].Split("=")[0], "=");
                                             }
                                         }
                                         else
@@ -334,10 +344,10 @@ namespace Projet_SGBD_backend.services
                                 {
                                     if (elems[i].ToLower() != "or")
                                     {
-                                        if (elems[i].Contains("="))
+                                        if (elems[i].Contains("<>"))
                                         {
-                                            conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
-                                            conditions3.Add(elems[i].Split("=")[0], "=");
+                                            conditions2.Add(elems[i].Split("<>")[0], elems[i].Split("<>")[1]);
+                                            conditions3.Add(elems[i].Split("<>")[0], "<>");
                                         }
                                         else if (elems[i].Contains(">="))
                                         {
@@ -358,6 +368,11 @@ namespace Projet_SGBD_backend.services
                                         {
                                             conditions2.Add(elems[i].Split("<")[0], elems[i].Split("<")[1]);
                                             conditions3.Add(elems[i].Split("<")[0], "<");
+                                        }
+                                        else if (elems[i].Contains("="))
+                                        {
+                                            conditions2.Add(elems[i].Split("=")[0], elems[i].Split("=")[1]);
+                                            conditions3.Add(elems[i].Split("=")[0], "=");
                                         }
                                     }
                                     else
